@@ -1,0 +1,150 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Jeu clavier</title>
+<style>
+body{
+	background-color: lightgray;
+}	
+</style>	
+</head>
+
+<body>
+
+<script>
+// Creation d'un canvas en Javascript au lieu de HTML 
+var canvas = document.createElement("canvas");
+var ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth-50;
+canvas.height = window.innerHeight-50
+canvas.style.border = "10px white solid";
+canvas.style.backgroundColor= "black";
+canvas.style.display = "block";
+canvas.style.margin ="auto"
+document.body.appendChild(canvas);
+
+
+//variables et objets du jeu
+var joueur={
+	x:200,
+	y:200,
+	w:30,
+	h:30,
+	color:"blue",
+	speed:15
+	}
+
+var cible={
+	x:canvas.width/2-100,
+	y:canvas.height/2-100,
+	w:200,
+	h:200,
+	color:"red"
+    }
+
+var keyDown={}
+
+var direction
+
+//fonctions
+function drawJoueur(){
+	ctx.fillStyle=joueur.color
+    ctx.fillRect(joueur.x, joueur.y, joueur.w, joueur.h)
+
+	}
+	
+function drawCible(){
+	ctx.fillStyle=cible.color
+    ctx.fillRect(cible.x, cible.y, cible.w, cible.h)
+    
+    if(collision(joueur,cible)){
+        cible.color="yellow"
+    }else{
+        cible.color="red"
+    }
+	}
+
+//gestion des collision
+
+function collision(a,b){
+	if(a.x+a.w>b.x&&
+	   a.x<b.x+b.w&&
+	   a.y<b.y+b.h&&
+	   a.y+a.h>b.y){
+
+		return(true)}
+	}
+
+function hitWall(a,b){
+    if(collision(a,b)&&direction=="gauche"){
+        a.x=b.x+b.w
+        console.log("hit from gauche")
+    }
+    if(collision(a,b)&&direction=="droite"){
+        a.x=b.x-a.w
+        console.log("hit from droite")
+    }
+    if(collision(a,b)&&direction=="haut"){
+        a.y=b.y+b.h
+        console.log("hit from haut")
+    }
+    if(collision(a,b)&&direction=="bas"){
+        a.y=b.y-a.h
+        console.log("hit from bas")
+    }
+} 
+
+function checkCollision(){
+	hitWall(joueur,cible)
+}
+//événements clavier
+
+document.addEventListener("keydown", function(e){
+    keyDown[e.keyCode]=true
+    console.log(keyDown)
+})
+
+document.addEventListener("keyup", function(e){
+    delete keyDown[e.keyCode]
+    console.log(keyDown)
+})
+
+
+function clavier(){
+	//console.log(e)
+	
+	if(37 in keyDown &&joueur.x>0){
+        direction="gauche"
+		joueur.x-=joueur.speed
+		}
+	if(39 in keyDown &&joueur.x<canvas.width-joueur.w){
+        direction="droite"
+		joueur.x+=joueur.speed
+		}
+	if(38 in keyDown &&joueur.y>0){
+        direction="haut"
+		joueur.y-=joueur.speed
+		}
+	if(40 in keyDown &&joueur.y<canvas.height-joueur.h){
+        direction="bas"
+		joueur.y+=joueur.speed
+		}	
+	}
+	
+
+//boucle principale du jeu
+
+function game(){
+	ctx.clearRect(0,0,canvas.width,canvas.height)
+	drawJoueur()
+    drawCible()
+    clavier()
+    checkCollision()
+	requestAnimationFrame(game)
+	}	
+game()
+
+</script>
+</body>
+</html>
